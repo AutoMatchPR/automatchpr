@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AutoMatch PR — Encuentra tu auto ideal</title>
+  <style>
+    :root{
+      --bg:#0A0A0A; --panel:#111; --border:#1f1f1f; --text:#EDEDED; --gold:#D4AF37; --cyan:#00C4CC; --muted:#9a9a9a;
+    }
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    header{padding:22px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+    .brand{font-weight:800;letter-spacing:.5px;color:var(--gold);font-size:22px}
+    .tag{color:var(--cyan);font-size:12px}
+    nav a{color:#cfcfcf;text-decoration:none;margin:0 10px;padding:8px 10px;border-radius:8px}
+    nav a.active, nav a:hover{background:#151515}
+    .container{max-width:1200px;margin:0 auto;padding:18px}
+    .hero{padding:24px;border:1px solid var(--border);background:radial-gradient(60% 80% at 50% 0%, #141414 0%, #000 100%);border-radius:16px;text-align:center}
+    h1{margin:6px 0 8px 0;font-size:28px}
+    .cta{display:inline-block;background:var(--gold);color:#000;padding:12px 18px;border-radius:12px;text-decoration:none;font-weight:700;margin:8px}
+    .cta.secondary{background:var(--cyan);color:#001018}
+    .panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:14px;margin-top:18px}
+    label{font-size:12px;color:#cfcfcf;display:block;margin-bottom:6px}
+    input,select{width:100%;background:#0f0f0f;color:#ddd;border:1px solid #222;border-radius:10px;padding:10px;margin-bottom:10px}
+    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+    .card{background:#121212;border:1px solid #222;border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+    .card img{width:100%;height:150px;object-fit:cover}
+    .card .info{padding:12px}
+    .price{color:var(--gold);font-weight:800}
+    .muted{color:var(--muted);font-size:12px}
+    .section-title{font-size:16px;font-weight:800;margin:0 0 10px 0;color:var(--gold)}
+    footer{padding:22px;text-align:center;color:#a8a8a8;border-top:1px solid var(--border);margin-top:30px}
+    .row{display:flex;gap:8px;flex-wrap:wrap}
+    .kpi{background:#131313;border:1px solid #262626;border-radius:12px;padding:12px;min-width:160px}
+    .kpi .v{font-size:22px;font-weight:800;color:var(--cyan)}
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <div class="brand">AutoMatch PR</div>
+      <div class="tag">La nueva era de las ventas automotrices en Puerto Rico — Más que exposición, resultados.</div>
+    </div>
+    <nav>
+      <a href="#" class="active" onclick="showView('inventario')">Inventario</a>
+      <a href="#" onclick="showView('encargo')">Búscame un auto</a>
+      <a href="#" onclick="showView('dashboard')">Dashboard</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <section class="hero">
+      <h1>Encuentra tu auto ideal</h1>
+      <p>Publicaciones que venden + leads calificados + modelo sin riesgo. Trabajamos por resultados.</p>
+      <a href="#encargo" class="cta" onclick="showView('encargo')">Pedir un auto por encargo</a>
+      <a class="cta secondary" href="https://wa.me/19394258848?text=Hola%20AutoMatch%20PR" target="_blank" rel="noopener">WhatsApp</a>
+    </section>
+
+    <!-- Inventario -->
+    <div id="inventario" class="panel">
+      <div class="row">
+        <div style="flex:1;min-width:260px">
+          <div class="section-title">Filtrar</div>
+          <label>Marca</label>
+          <select id="f_make"><option value="">Todas</option></select>
+          <label>Carrocería</label>
+          <select id="f_body">
+            <option value="">Todas</option><option>sedan</option><option>suv</option><option>pickup</option><option>coupe</option><option>hatchback</option><option>van</option>
+          </select>
+          <div class="row">
+            <div style="flex:1">
+              <label>Año mínimo</label><input id="f_year_min" type="number" placeholder="2016" />
+            </div>
+            <div style="flex:1">
+              <label>Año máximo</label><input id="f_year_max" type="number" placeholder="2025" />
+            </div>
+          </div>
+          <div class="row">
+            <div style="flex:1">
+              <label>Precio máx (USD)</label><input id="f_price" type="number" placeholder="26000" />
+            </div>
+            <div style="flex:1">
+              <label>Color</label><input id="f_color" type="text" placeholder="negro / blanco / gris..." />
+            </div>
+          </div>
+          <button class="cta" onclick="applyFilters()">Aplicar filtros</button>
+        </div>
+        <div style="flex:3">
+          <div class="section-title">Resultados</div>
+          <div id="cards" class="cards"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Encargo -->
+    <div id="encargo" class="panel" style="display:none;">
+      <div class="section-title">¿No ves lo que buscas? Te lo encontramos</div>
+      <p>Cuéntanos exactamente lo que necesitas y te contactamos con opciones verificadas.</p>
+      <div class="row">
+        <input id="rq_name" placeholder="Nombre completo" style="flex:1"/>
+        <input id="rq_phone" placeholder="Teléfono" style="flex:1"/>
+      </div>
+      <div class="row">
+        <input id="rq_make" placeholder="Marca (ej. Toyota)" style="flex:1"/>
+        <input id="rq_model" placeholder="Modelo (ej. Corolla)" style="flex:1"/>
+      </div>
+      <div class="row">
+        <input id="rq_year_min" type="number" placeholder="Año mín" style="flex:1"/>
+        <input id="rq_year_max" type="number" placeholder="Año máx" style="flex:1"/>
+        <input id="rq_color" placeholder="Color" style="flex:1"/>
+      </div>
+      <div class="row">
+        <input id="rq_body" placeholder="Carrocería (sedan, suv, pickup...)" style="flex:2"/>
+        <input id="rq_budget" type="number" placeholder="Presupuesto máx (USD)" style="flex:1"/>
+      </div>
+      <textarea id="rq_notes" placeholder="Notas (financiamiento, trade-in, ciudad...)" style="width:100%;height:90px;background:#0f0f0f;color:#ddd;border:1px solid #222;border-radius:10px;padding:10px;margin:8px 0"></textarea>
+      <div class="row">
+        <a class="cta" href="#" onclick="sendRequest()">Enviar solicitud por WhatsApp</a>
+        <a class="cta secondary" href="https://tally.so/r/REEMPLAZA_CON_TU_FORM" target="_blank" rel="noopener">Formulario completo</a>
+      </div>
+      <div class="muted">Tip: Conecta este botón a tu Tally o Google Form para registrar y automatizar en Make.</div>
+    </div>
+
+    <!-- Dashboard simple -->
+    <div id="dashboard" class="panel" style="display:none;">
+      <div class="section-title">Dashboard</div>
+      <div class="row">
+        <div class="kpi"><div class="muted">Visitas (demo local)</div><div id="k_visits" class="v">0</div></div>
+        <div class="kpi"><div class="muted">Solicitudes enviadas</div><div id="k_forms" class="v">0</div></div>
+        <div class="kpi"><div class="muted">Búsquedas en inventario</div><div id="k_search" class="v">0</div></div>
+        <div class="kpi"><div class="muted">% búsquedas por marca (top)</div><div id="k_brand" class="v">—</div></div>
+      </div>
+      <p class="muted">Para métricas reales agrega Google Analytics 4 y/o envía eventos a Google Sheets con Make.</p>
+    </div>
+  </div>
+
+  <footer>© AutoMatch PR — Conectamos personas con su auto ideal</footer>
+
+  <script>
+    const visitKey='ampr_visits', formKey='ampr_forms', searchKey='ampr_searches', brandKey='ampr_brand_counts';
+    const store=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+    const load=(k,d)=>JSON.parse(localStorage.getItem(k)||JSON.stringify(d));
+    let v=load(visitKey,0); v++; store(visitKey,v);
+
+    const INVENTORY = [{"id":1,"make":"Toyota","model":"Corolla","year":2021,"price_usd":21900,"mileage":35000,"body":"sedan","color":"gris","location":"Caguas","image_url":"https:\/\/images.unsplash.com\/photo-1549921296-3b4a4f5a5b03","dealer_name":"Dealer XYZ","dealer_phone":"787-555-0101","featured":true,"in_stock":true},{"id":2,"make":"Honda","model":"Civic","year":2019,"price_usd":20500,"mileage":42000,"body":"sedan","color":"blanco","location":"San Juan","image_url":"https:\/\/images.unsplash.com\/photo-1533473359331-0135ef1b58bf","dealer_name":"Dealer ABC","dealer_phone":"787-555-0202","featured":false,"in_stock":true},{"id":3,"make":"Ford","model":"Escape","year":2020,"price_usd":23900,"mileage":30000,"body":"suv","color":"rojo","location":"Bayam\u00f3n","image_url":"https:\/\/images.unsplash.com\/photo-1619767886558-efdc259cde1b","dealer_name":"Dealer Norte","dealer_phone":"787-555-0303","featured":true,"in_stock":true},{"id":4,"make":"Hyundai","model":"Tucson","year":2022,"price_usd":25900,"mileage":18000,"body":"suv","color":"azul","location":"Ponce","image_url":"https:\/\/images.unsplash.com\/photo-1549923746-c502d488b3ea","dealer_name":"Dealer Sur","dealer_phone":"787-555-0404","featured":false,"in_stock":true},{"id":5,"make":"Toyota","model":"Tacoma","year":2018,"price_usd":28900,"mileage":52000,"body":"pickup","color":"negro","location":"Carolina","image_url":"https:\/\/images.unsplash.com\/photo-1620891549027-9420b34f2f1e","dealer_name":"Dealer Este","dealer_phone":"787-555-0505","featured":false,"in_stock":true}];
+
+    const cardsEl=document.getElementById('cards');
+    const f_make=document.getElementById('f_make');
+    const f_body=document.getElementById('f_body');
+    const f_year_min=document.getElementById('f_year_min');
+    const f_year_max=document.getElementById('f_year_max');
+    const f_price=document.getElementById('f_price');
+    const f_color=document.getElementById('f_color');
+
+    const makes=[...new Set(INVENTORY.map(x=>x.make))].sort();
+    makes.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;f_make.appendChild(o);});
+
+    function money(n){return '$'+Number(n).toLocaleString();}
+    function card(item){
+      const wamsg=encodeURIComponent(`Estoy interesado en ${item.make} ${item.model} ${item.year} — ${money(item.price_usd)}`);
+      return `<div class="card">
+        <img src="${item.image_url}" alt="${item.make} ${item.model}">
+        <div class="info">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <strong>${item.make} ${item.model} ${item.year}</strong>
+            <span class="price">${money(item.price_usd)}</span>
+          </div>
+          <div class="muted">${item.body} · ${item.color} · ${Number(item.mileage).toLocaleString()} mi · ${item.location}</div>
+          <div class="muted">Dealer: ${item.dealer_name} — ${item.dealer_phone}</div>
+          <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+            <a class="cta" href="https://tally.so/r/REEMPLAZA_CON_TU_FORM" target="_blank" rel="noopener">Solicitar info</a>
+            <a class="cta secondary" target="_blank" href="https://wa.me/19394258848?text=${wamsg}">WhatsApp</a>
+          </div>
+        </div>
+      </div>`
+    }
+    function render(list){cardsEl.innerHTML=list.map(card).join('');}
+    function applyFilters(){
+      let s=load(searchKey,0); s++; store(searchKey,s);
+      const sel=f_make.value; if(sel){const stats=load(brandKey,{}); stats[sel]=(stats[sel]||0)+1; store(brandKey,stats);}
+      const yMin=Number(f_year_min.value||0), yMax=Number(f_year_max.value||9999);
+      const pMax=Number(f_price.value||1e9); const color=(f_color.value||'').toLowerCase();
+      const body=f_body.value, make=f_make.value;
+      const filtered=INVENTORY.filter(x=>
+        (make?x.make===make:true) && (body?x.body===body:true) &&
+        (x.year>=yMin && x.year<=yMax) && (x.price_usd<=pMax) &&
+        (color?x.color.toLowerCase().includes(color):true)
+      );
+      render(filtered); updateKPIs();
+    }
+    function updateKPIs(){
+      document.getElementById('k_visits').textContent=load(visitKey,0);
+      document.getElementById('k_forms').textContent=load(formKey,0);
+      document.getElementById('k_search').textContent=load(searchKey,0);
+      const stats=load(brandKey,{}); const total=Object.values(stats).reduce((a,b)=>a+b,0)||1;
+      const top=Object.entries(stats).sort((a,b)=>b[1]-a[1])[0];
+      document.getElementById('k_brand').textContent=top? (top[0]+' '+(100*top[1]/total).toFixed(0)+'%') : '—';
+    }
+    function showView(id){
+      ['inventario','encargo','dashboard'].forEach(sec=>{
+        document.getElementById(sec).style.display = (sec===id? 'block':'none');
+      });
+      if(id==='inventario') render(INVENTORY);
+      if(id==='dashboard') updateKPIs();
+    }
+    function sendRequest(){
+      const data={
+        name: document.getElementById('rq_name').value.trim(),
+        phone: document.getElementById('rq_phone').value.trim(),
+        make: document.getElementById('rq_make').value.trim(),
+        model: document.getElementById('rq_model').value.trim(),
+        year_min: document.getElementById('rq_year_min').value.trim(),
+        year_max: document.getElementById('rq_year_max').value.trim(),
+        color: document.getElementById('rq_color').value.trim(),
+        body: document.getElementById('rq_body').value.trim(),
+        budget: document.getElementById('rq_budget').value.trim(),
+        notes: document.getElementById('rq_notes').value.trim()
+      };
+      if(!data.name || !data.phone || !data.make){ alert('Por favor, completa al menos Nombre, Teléfono y Marca.'); return; }
+      let f=load(formKey,0); f++; store(formKey,f);
+      const msg=`Hola AutoMatch PR, soy ${data.name}. Busco ${data.make} ${data.model||''} ${data.year_min||''}-${data.year_max||''}, color ${data.color||'cualquiera'}, body ${data.body||'cualquiera'}, presupuesto ${data.budget||'N/A'}. Tel: ${data.phone}. ${data.notes||''}`;
+      window.open("https://wa.me/19394258848?text="+encodeURIComponent(msg), "_blank");
+      updateKPIs();
+    }
+    render(INVENTORY);
+  </script>
+</body></html>
